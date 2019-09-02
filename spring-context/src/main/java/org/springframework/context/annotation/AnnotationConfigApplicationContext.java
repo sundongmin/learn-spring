@@ -52,6 +52,10 @@ import org.springframework.util.Assert;
  */
 public class AnnotationConfigApplicationContext extends GenericApplicationContext implements AnnotationConfigRegistry {
 
+	/**
+	 * 读取器, 读取一个被加了注解的bean
+	 * 这个类是在构造方法中实例化的
+	 */
 	private final AnnotatedBeanDefinitionReader reader;
 
 	private final ClassPathBeanDefinitionScanner scanner;
@@ -83,6 +87,8 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * e.g. {@link Configuration @Configuration} classes
 	 */
 	public AnnotationConfigApplicationContext(Class<?>... annotatedClasses) {
+		// 这里由于他有父类, 故而会先调用父类的构造方法, 然后才会调用自己的构造方法
+		// 在自己构造方法中初始化一个读取器和扫描器
 		this();
 		register(annotatedClasses);
 		refresh();

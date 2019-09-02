@@ -23,6 +23,7 @@ import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 
 /**
+ * Spring中用来描述bean的一个接口
  * A BeanDefinition describes a bean instance, which has property values,
  * constructor argument values, and further information supplied by
  * concrete implementations.
@@ -84,7 +85,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	// Modifiable attributes
 
 	/**
-	 * Set the name of the parent definition of this bean definition, if any.
+	 * Set the name of the parent definition of this bean definition, if any(若有的话).
 	 */
 	void setParentName(@Nullable String parentName);
 
