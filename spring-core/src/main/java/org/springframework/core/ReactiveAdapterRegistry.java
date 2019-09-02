@@ -16,6 +16,16 @@
 
 package org.springframework.core;
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import org.reactivestreams.Publisher;
+import org.springframework.lang.Nullable;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import rx.RxReactiveStreams;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,19 +33,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
-
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import kotlinx.coroutines.CompletableDeferredKt;
-import kotlinx.coroutines.Deferred;
-import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import rx.RxReactiveStreams;
-
-import org.springframework.lang.Nullable;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * A registry of adapters to adapt Reactive Streams {@link Publisher} to/from
@@ -94,9 +91,9 @@ public class ReactiveAdapterRegistry {
 		// We can fall back on "reactive-streams-flow-bridge" (once released)
 
 		// Coroutines
-		if (this.reactorPresent && ClassUtils.isPresent("kotlinx.coroutines.reactor.MonoKt", classLoader)) {
-			new CoroutinesRegistrar().registerAdapters(this);
-		}
+//		if (this.reactorPresent && ClassUtils.isPresent("kotlinx.coroutines.reactor.MonoKt", classLoader)) {
+//			new CoroutinesRegistrar().registerAdapters(this);
+//		}
 	}
 
 
@@ -337,21 +334,21 @@ public class ReactiveAdapterRegistry {
 	}
 
 
-	private static class CoroutinesRegistrar {
-
-		@SuppressWarnings("KotlinInternalInJava")
-		void registerAdapters(ReactiveAdapterRegistry registry) {
-			registry.registerReactiveType(
-					ReactiveTypeDescriptor.singleOptionalValue(Deferred.class,
-							() -> CompletableDeferredKt.CompletableDeferred(null)),
-					source -> CoroutinesUtils.deferredToMono((Deferred<?>) source),
-					source -> CoroutinesUtils.monoToDeferred(Mono.from(source)));
-
-			registry.registerReactiveType(
-					ReactiveTypeDescriptor.multiValue(kotlinx.coroutines.flow.Flow.class, kotlinx.coroutines.flow.FlowKt::emptyFlow),
-					source -> kotlinx.coroutines.reactor.ReactorFlowKt.asFlux((kotlinx.coroutines.flow.Flow<?>) source),
-					kotlinx.coroutines.reactive.ReactiveFlowKt::asFlow
-			);
-		}
-	}
+//	private static class CoroutinesRegistrar {
+//
+//		@SuppressWarnings("KotlinInternalInJava")
+//		void registerAdapters(ReactiveAdapterRegistry registry) {
+//			registry.registerReactiveType(
+//					ReactiveTypeDescriptor.singleOptionalValue(Deferred.class,
+//							() -> CompletableDeferredKt.CompletableDeferred(null)),
+//					source -> CoroutinesUtils.deferredToMono((Deferred<?>) source),
+//					source -> CoroutinesUtils.monoToDeferred(Mono.from(source)));
+//
+//			registry.registerReactiveType(
+//					ReactiveTypeDescriptor.multiValue(kotlinx.coroutines.flow.Flow.class, kotlinx.coroutines.flow.FlowKt::emptyFlow),
+//					source -> kotlinx.coroutines.reactor.ReactorFlowKt.asFlux((kotlinx.coroutines.flow.Flow<?>) source),
+//					kotlinx.coroutines.reactive.ReactiveFlowKt::asFlow
+//			);
+//		}
+//	}
 }
