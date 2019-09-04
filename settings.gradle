@@ -30,11 +30,10 @@ include "spring-webflux"
 include "spring-websocket"
 include "framework-bom"
 include "integration-tests"
+include "learn-spring"
 
-rootProject.name = "spring"
+rootProject.name = "learn-spring"
 rootProject.children.each {project ->
 	project.buildFileName = "${project.name}.gradle"
 }
-include 'learn-spring'
-findProject(':learn-spring')?.name = 'com.github'
 
