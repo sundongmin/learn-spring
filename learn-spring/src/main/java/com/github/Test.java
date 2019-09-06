@@ -11,5 +11,8 @@ public class Test {
 		IndexService service = context.getBean("index", IndexService.class);
 		System.out.println(service);
 
+		CarService carDao = (CarService) context.getBean("carService");
+		carDao.printColor();
+
 	}
 }
