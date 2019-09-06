@@ -1,5 +1,7 @@
-package com.github;
+package com.github.context;
 
+import com.github.factory.MyFactoryBean;
+import com.github.service.CarService;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
@@ -14,7 +16,7 @@ public class MyImportBeanDefinitionRegistrar implements ImportBeanDefinitionRegi
 		System.out.println(beanDefinition.getBeanClassName());
 
 		beanDefinition.setBeanClass(MyFactoryBean.class);
-		beanDefinition.getConstructorArgumentValues().addGenericArgumentValue("com.github.CarService");
+		beanDefinition.getConstructorArgumentValues().addGenericArgumentValue("com.github.service.CarService");
 		registry.registerBeanDefinition("carService", beanDefinition);
 	}
 }

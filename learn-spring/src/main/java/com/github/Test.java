@@ -1,5 +1,8 @@
 package com.github;
 
+import com.github.config.AppConfig;
+import com.github.service.CarService;
+import com.github.service.IndexService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class Test {

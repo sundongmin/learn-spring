@@ -1,5 +1,6 @@
-package com.github;
+package com.github.factory;
 
+import com.github.proxy.MyInvocationHandler;
 import org.springframework.beans.factory.FactoryBean;
 
 import java.lang.reflect.Proxy;

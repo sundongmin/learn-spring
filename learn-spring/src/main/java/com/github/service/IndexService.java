@@ -1,4 +1,4 @@
-package com.github;
+package com.github.service;
 
 import org.springframework.stereotype.Component;
 
