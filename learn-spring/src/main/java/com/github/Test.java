@@ -11,6 +11,8 @@ public class Test {
 		context.register(AppConfig.class);
 		context.refresh();
 
+		AppConfig appConfig = context.getBean(AppConfig.class);
+
 		IndexService service = context.getBean("index", IndexService.class);
 		System.out.println(service);
 
