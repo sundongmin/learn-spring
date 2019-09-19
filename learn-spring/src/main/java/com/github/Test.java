@@ -1,8 +1,7 @@
 package com.github;
 
 import com.github.config.AppConfig;
-import com.github.service.CarService;
-import com.github.service.IndexService;
+import com.github.service.UserService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class Test {
@@ -11,13 +10,9 @@ public class Test {
 		context.register(AppConfig.class);
 		context.refresh();
 
-		AppConfig appConfig = context.getBean(AppConfig.class);
 
-		IndexService service = context.getBean("index", IndexService.class);
-		System.out.println(service);
-
-		CarService carService = (CarService) context.getBean("carService");
-		carService.printColor();
+		UserService userService = context.getBean(UserService.class);
+		userService.query();
 
 	}
 }

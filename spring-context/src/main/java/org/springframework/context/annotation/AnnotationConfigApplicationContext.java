@@ -16,8 +16,6 @@
 
 package org.springframework.context.annotation;
 
-import java.util.function.Supplier;
-
 import org.springframework.beans.factory.config.BeanDefinitionCustomizer;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -25,6 +23,8 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+
+import java.util.function.Supplier;
 
 /**
  * Standalone application context, accepting annotated classes as input - in particular
@@ -72,9 +72,16 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	/**
 	 * Create a new AnnotationConfigApplicationContext that needs to be populated
 	 * through {@link #register} calls and then manually {@linkplain #refresh refreshed}.
+	 * 此处会先调用父类的构造器, 父类构造器初始化DefaultListableBeanFactory
 	 */
 	public AnnotationConfigApplicationContext() {
+		// 初始化bean读取器,
+		// 向spring中注册了6个PostProcessor, 这里的注册指的是将这6个类对应得BeanDefinition放入到BeanDefinitionMap中
+		// 其中ConfigurationClassPostProcessor, AutowiredAnnotationBeanPostProcessor, CommonAnnotationBeanPostProcessor这三个类非常重要
+		// 向beanFactory设置AnnotationAwareOrderComparator和ContextAnnotationAutowireCandidateResolver
 		this.reader = new AnnotatedBeanDefinitionReader(this);
+
+		// 初始化扫描器
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 
@@ -98,7 +105,11 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 		// 这里由于他有父类, 故而会先调用父类的构造方法, 然后才会调用自己的构造方法
 		// 在自己构造方法中初始化一个读取器和扫描器
 		this();
+
+		// 将传入的配置类解析成BeanDefinition, 实际类型为AnnotatedGenericBeanDefinition
+		// 然后放到BeanDefinitionMap中, 后面ConfigurationClassPostProcessor中解析
 		register(annotatedClasses);
+		// 这个方法是整个Spring容器的核心, 再这个方法中进行了bean的实例化、初始化、自动装配、AOP等功能
 		refresh();
 	}
 

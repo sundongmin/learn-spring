@@ -458,7 +458,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-			// 第一次执行PostProcessors
+			// 第一次执行PostProcessors(执行所有InstantiationAwareBeanPostProcessor的子类)
+			// 在这个方法中执行了后置处理器InstantiationAwareBeanPostProcessor的postProcessBeforeInstantiation()方法
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
 				return bean;
@@ -510,6 +511,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
 		if (instanceWrapper == null) {
+			// 实例化bean(第二次执行后置处理器的入口),第二次执行后置处理器，主要是为了推断出实例化Bean所需要的构造器
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
 		final Object bean = instanceWrapper.getWrappedInstance();
@@ -519,10 +521,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Allow post-processors to modify the merged bean definition.
+		// 此时bean对象已经创建成功，但是没有设置属性和经过其他后置处理器处理
 		synchronized (mbd.postProcessingLock) {
 			if (!mbd.postProcessed) {
 				try {
 					// 第三次执行PostProcessors
+					// 第三次执行后置处理器，缓存bean的注解元数据信息(用于后面在进行属性填充时使用)
+					// 这一步对于CommonAnnotationBeanPostProcessor、AutowiredAnnotationBeanPostProcessor、RequiredAnnotationBeanPostProcessor这一类处理器, 主要是将bean的注解信息解析出来，然后缓存到后置处理器中的injectionMetadataCache属性中
+					// 而对于ApplicationListenerDetector处理器，而是将bean是否是单例的标识存于singletonNames这个Map类型的属性中
 					applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
 				}
 				catch (Throwable ex) {
@@ -535,6 +541,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Eagerly cache singletons to be able to resolve circular references
 		// even when triggered by lifecycle interfaces like BeanFactoryAware.
+		// 判断一个bean是否放入到singletonFactories中(提前暴露出来，可以解决循环依赖的问题)
 		boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
 				isSingletonCurrentlyInCreation(beanName));
 		if (earlySingletonExposure) {
@@ -543,13 +550,19 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 						"' to allow for resolving potential circular references");
 			}
 			// 第四次执行PostProcessors
+			// 把提前暴露出来的bean是放入到了singletonFactories中
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
+			// 填充属性
+			// 第五次、第六次执行后置处理器入口
 			populateBean(beanName, mbd, instanceWrapper);
+
+			// Spring的AOP就是在这实现的, 通过调用AnnotationAwareAspectJAutoProxyCreator#postProcessAfterInitialization
+			// 第七次、第八次执行后置处理器入口
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1158,6 +1171,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Candidate constructors for autowiring?
 		// 第二次执行PostProcessors
+		// 目的是为了推断出bean应该使用哪一个构造器去实例化对象
 		Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
 		if (ctors != null || mbd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR ||
 				mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
