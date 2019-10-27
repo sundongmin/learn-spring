@@ -540,7 +540,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 				// Instantiate all remaining (non-lazy-init) singletons.
 				// 实例化剩余的非懒加载的单例bean(注意：剩余、非懒加载、单例)
-				// 为什么说是剩余呢？如果开发人员自定义了BeanPosrProcessor，而BeanPostProcessor在前面已经实例化了，所以在这里不会再实例化，因此这里使用剩余一词
+				// 为什么说是剩余呢？如果开发人员自定义了BeanPostProcessor，而BeanPostProcessor在前面已经实例化了，所以在这里不会再实例化，因此这里使用剩余一词
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.
